@@ -1,10 +1,12 @@
 package com.smart.controller;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,7 +44,7 @@ public class HomeController {
 	
 	//handler for registering user
 	@RequestMapping(value="/do-register", method=RequestMethod.POST)
-	public String registerUser(@ModelAttribute("user") User user,
+	public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result1,
 			@RequestParam(name="agreement", defaultValue = "false") boolean agreement,
 			Model model,
 			HttpSession session) {
@@ -53,6 +55,13 @@ public class HomeController {
 				System.out.println("Not agreed to terms and conditions");
 				throw new Exception("Not agreed to terms and conditions");
 			}
+			
+			if(result1.hasErrors()) {
+				System.out.println("Error"+result1.toString());
+				model.addAttribute("user", user);
+				return "signup";
+			}
+			
 			user.setEnabled(true);
 			user.setRole("ROLE_USER");
 			
